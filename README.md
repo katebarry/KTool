@@ -48,15 +48,15 @@ The fifth argument serves to arrange the identified users from highest fame rank
 
 usersranked = dplyr::arrange(importanceranking, desc(fame))
 
-# CREATE TWITTER OBJECT OF PEOPLE WITH TERM IN THEIR BIO
+# Create Twitter object of people with term in their bio
   user_data = rtweet::search_users(term)
-  # EXTRACT BIO DATA FROM EACH USER IN THE TWITTER OBJECT
+  # Extract bio data from each user in the Twitter object
   bios = rtweet::lookup_users(user_data$user_id)
-  # CHOOSE ONLY HELPFUL COLUMNS
+  # Choose only helpful columns
   usefuldata = dplyr::select(bios, user_id, screen_name, followers_count, friends_count)
-  # CREATE NEW VARIABLE THAT IS FOLLOWERS DIVIDED BY FRIENDS
+  # Create new variable that is followers divided by friends
   importanceranking = dplyr::mutate(usefuldata, fame = followers_count/friends_count)
-  # ARRANGE ON NEW VARIABLE
+  # Arrange on new variable
   usersranked = dplyr::arrange(importanceranking, desc(fame))
 ```
 
