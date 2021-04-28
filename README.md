@@ -1,70 +1,129 @@
----
-title: "ktool"
-author: "Kate Barry"
-date: "`r Sys.Date()`"
-output: github_document
----
+botscan
+================
+Kurt Wirth
+2021-04-28
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-A package giving users the capability to search for any given term and have the most valuable usernames with this term in their bios returned to them in a ranked order so that users have the ability to contact those users with similar interests to them.
+A package extending the capability of
+[botometer](https://github.com/IUNetSci/botometer-python) by measuring
+suspected bot activity in any given Twitter query. This README is
+derived from Matt Kearney’s excellent
+[rtweet]((https://github.com/mkearney/rtweet)) documentation.
 
 ## Install
 
 Install from GitHub with the following code:
 
-```{r install, eval = FALSE}
+``` r
 if (!requireNamespace("devtools", quietly = TRUE)) {
   install.packages("devtools")
 }
-devtools::install_github("katebarry/ktool")
+devtools::install_github("kurtawirth/botscan")
 ```
 
-This package uses <code>rtweet</code>. As a 
-result, each user must have previously acquired authentication from Twitter and 
-instructions to do that [can be found here](http://rtweet.info/articles/auth.html).
+This package connects <code>botometer</code> to <code>rtweet</code>. As
+a result, each user must have previously acquired authentication from
+Twitter and instructions to do that [can be found
+here](http://rtweet.info/articles/auth.html).
+
+Users will also need to install the latest version of Python, as botscan
+accesses Python-based <code>botometer</code>, as well as acquiring a
+[Mashape key](https://market.mashape.com/OSoMe/botometer). Doing so
+requires a Mashape account. BotOMeter’s default rate limit is 2,000
+inquiries per day, so users are strongly encouraged to sign up for a
+(free) BotOMeter Pro key. Instructions to do that [can be found
+here](https://market.mashape.com/OSoMe/botometer-pro/pricing).
 
 ## Usage
 
-ktool's first argument takes any Twitter query, complete with boolean operators if
-desired, surrounded by quotation marks.
+There are two functions currently live for botscan.
 
-user_data = rtweet::search_users(term)
+To begin, the user must first enter the following code, inserting their
+keys where appropriate:
 
-The next argument extracts the found users' bio data by examining the user ID of each user.
-
-bios = rtweet::lookup_users(user_data$user_id)
-
-The third argument selects only the necessary columns of data. These necessary columns of data have been determined by selecting only what the user will be using in following arguments and/or other columns that may serve useful information to help the user further understand the data returned to them.
-
-usefuldata = dplyr::select(bios, user_id, screen_name, followers_count, friends_count)
-
-The fourth argument uses two of the selected columns, those being followers_count and friends_count, to find a fame ranking. These are two viable numbers in a Twitter user's account that tend to resemble how liable the account is, how active the account is, and how important the account is. It is crucial to divide the followers by the friends because a bot account can purchase followers, but if an account has a similar number of followers to friends it is more likely to be a liable account.
-
- importanceranking = dplyr::mutate(usefuldata, fame = followers_count/friends_count)
- 
-The fifth argument serves to arrange the identified users from highest fame ranking to lowest. This allows users to easily identify what accounts may be the best to contact with inquiries about their shared interest. The higher the fame ranking the more liable the account should be, therefore the more helpful they may be for users to contact.
-
-usersranked = dplyr::arrange(importanceranking, desc(fame))
-
-# Create Twitter object of people with term in their bio
-  user_data = rtweet::search_users(term)
-  # Extract bio data from each user in the Twitter object
-  bios = rtweet::lookup_users(user_data$user_id)
-  # Choose only helpful columns
-  usefuldata = dplyr::select(bios, user_id, screen_name, followers_count, friends_count)
-  # Create new variable that is followers divided by friends
-  importanceranking = dplyr::mutate(usefuldata, fame = followers_count/friends_count)
-  # Arrange on new variable
-  usersranked = dplyr::arrange(importanceranking, desc(fame))
+``` setup
+bom <- setup_botscan("YourMashapeKey", 
+                     "YourTwitterConsumerKey", 
+                     "YourTwitterConsumerSecret", 
+                     "YourTwitterAccessToken", 
+                     "YourTwitterAccessTokenSecret")
 ```
 
-This process is only used to gather information for the user. It is then up to the user to take the usernames of those gathered by <code>ktool</code> and input them into their own Twitter account to create a base of contact between the users. The ability to automate a message or a friend request to users with a fame ranking of over .5 is in the process of being created.
+Currently, this must be done at the start of every session.
 
-Twitter rate limits cap the number of Search results returned to 18,000 every 
-15 minutes. Thus, excessive use of <code>ktool</code> in a short amount of 
-time may result in a warning and inability to pull results.  In this event, 
-simply wait 15 minutes and try again.  In an effort to avoid the Twitter rate 
-limit cap, <code>ktool</code> defaults to returning 1000 results when 
-<code>search = TRUE</code>.
+Next, the fun begins with <code>botscan</code>.
+
+Its first argument takes any Twitter query, complete with boolean
+operators if desired, surrounded by quotation marks.
+
+The next argument determines how long an open stream of tweets will be
+collected, with a default of 30 seconds. In order to gather a specific
+volume of tweets, it is suggested that the user run a small initial test
+to determine a rough rate of tweets for the given query. If the user
+prefers to use Twitter’s Search API, the next argument allows the user
+to specify the number of tweets to extract.
+
+The fourth argument determines whether retweets will be included if
+using the Search API and the fifth takes a number, less than one, that
+represents the desired threshold at which an account should be
+considered a bot. The default is .430, a reliable threshold as described
+by BotOMeter’s creator
+[here](http://www.pewresearch.org/fact-tank/2018/04/19/qa-how-pew-research-center-identified-bots-on-twitter/).
+
+The sixth argument allows the user to toggle between user-level and
+conversation-level summaries. The default is set to conversation-level
+data, understood as the proportion of the queried conversation that is
+bot-related. If <code>user\_level</code> is set to <code>TRUE</code>,
+<code>botscan</code> will return user-level data, understood to be the
+proportion of the queried conversation’s authors that are estimated to
+be bots.
+
+The seventh argument allows the user to toggle between Twitter’s Search
+and Streaming APIs. The default is set to using the Streaming API, as it
+is unfiltered by Twitter and thus produces more accurate data. Search
+API data is filtered to eliminate low quality content, thus negatively
+impacting identification of bot accounts.
+
+The eighth argument allows the user to opt out of auto-parsing of data,
+primarily useful when dealing with large volumes of data. The ninth and
+final argument defaults to keeping the user informed about the progress
+of the tool in gathering and processing data with the
+<code>verbose</code> package but can be toggled off.
+
+``` r
+## load botscan
+library(botscan)
+
+## Enter query surrounded by quotation marks
+botscan("#rstats")
+#> [1] 0.1642276
+
+## Result is percentage - in this case, 16.42276%.
+
+## If desired, choose the stream time and threshold
+botscan("#rstats", timeout = 60, threshold = .995)
+#> [1] 0.02398524
+
+## Alternatively, choose to use Twitter's Search API and options associated with it.
+botscan("#rstats", n_tweets = 1500, retweets = TRUE, search = TRUE, threshold = .995)
+#> [1] 0.03270932
+
+## Result is percentage - in this case, 2.398524%.
+
+##If desired, scan only users rather than the conversation as a whole.
+botscan("#rstats", user_level = TRUE)
+#> [1] 0.1505155
+
+## Result is percentage - in this case, 15.05155%.
+```
+
+This process takes some time, as botscan is currently built on a loop of
+BotOMeter. Efforts to mainstream this process are set as future goals. A
+standard pull of tweets via <code>botscan</code> processes approximately
+11 to 12 accounts per minute in addition to the initial tweet streaming.
+
+Twitter rate limits cap the number of Search results returned to 18,000
+every 15 minutes. Thus, excessive use of <code>botscan</code> in a short
+amount of time may result in a warning and inability to pull results. In
+this event, simply wait 15 minutes and try again. In an effort to avoid
+the Twitter rate limit cap, <code>botscan</code> defaults to returning
+1000 results when <code>search = TRUE</code>.
