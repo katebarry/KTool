@@ -1,5 +1,5 @@
 ---
-title: "botscan"
+title: "KTool"
 author: "Kurt Wirth"
 date: "`r Sys.Date()`"
 output: github_document
