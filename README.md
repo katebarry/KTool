@@ -25,23 +25,18 @@ that [can be found here](http://rtweet.info/articles/auth.html).
 
 ## Usage
 
-ktool’s first argument takes any Twitter query, complete with boolean
+KTool’s argument takes any Twitter query, complete with boolean
 operators if desired, surrounded by quotation marks.
 
 ``` r
-user_data = rtweet::search_users("term")
-```
-
-    ## Searching for users...
-
-    ## Finished collecting users!
-
-``` r
-## Create Twitter object of people with term in their bio
-user_data = rtweet::search_users("ceo")
+## userdata = KTool("biden")
 ```
 
 This process is only used to gather information for the user. It is then
 up to the user to take the usernames of those gathered by
 <code>ktool</code> and input them into their own Twitter account to
-create a base of contact between the users.
+create a base of contact between the users. KTool will output A list of
+Twitter usernames ranked in order of follower count divided by friend
+count as an object in the user’s environment. The object will include
+Twitter user’s bios, user\_id, screen\_name, and fame. Fame is the
+variable that represents the follower count divided by the friend count.

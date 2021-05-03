@@ -5,7 +5,6 @@ Authors@R:
     person(given = "Kate",
            family = "Barry",
            role = c("aut", "cre"),
-           email = "kate.barry0217@gmail.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           email = "kate.barry0217@gmail.com")
 Description: KTool pulls usernames of Twitter users with a given term in their bio, it then takes the number of followers and friends the user has divides these two numbers and arranges them in descending order to identify the most liable users.
 
