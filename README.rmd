@@ -9,7 +9,11 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-A package giving users the capability to search for any given term and have the most valuable usernames with this term in their bios returned to them in a ranked order so that users have the ability to contact those users with similar interests to them.
+A package giving users the capability to search for any
+given term and have the most valuable usernames with this
+term in their bios returned to them in a ranked order so
+that users have the ability to contact those users with
+similar interests to them.
 
 ## Install
 
