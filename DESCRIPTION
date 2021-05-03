@@ -1,5 +1,5 @@
 Package: KTool
-Title: Pulls Twitter usernames with a given term in their bios
+Title: Twitter Bio Search
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Kate",
@@ -8,6 +8,4 @@ Authors@R:
            email = "kate.barry0217@gmail.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: KTool pulls usernames of Twitter users with a given term in their bio, it then takes the number of followers and friends the user has divides these two numbers and arranges them in descending order to identify the most liable users.
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
 
